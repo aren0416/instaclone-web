@@ -3,83 +3,17 @@ import {
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
-
-const Container = styled.div`
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-`;
-
-const Wrapper = styled.div`
-  max-width: 350px;
-  width: 100%;
-`;
-
-const WhiteBox = styled.div`
-  width: 100%;
-  background-color: white;
-  border: 1px solid rgb(219, 219, 219);
-`;
-
-const TopBox = styled(WhiteBox)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 35px 40px 20px 40px;
-  margin-bottom: 10px;
-  form {
-    width: 100%;
-    margin-top: 35px;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    input {
-      width: 100%;
-      border-radius: 3px;
-      padding: 7px;
-      background-color: #fafafa;
-      border: 0.5px solid rgb(219, 219, 219);
-      margin-top: 5px;
-      box-sizing: border-box;
-      &::placeholder {
-        font-size: 12px;
-      }
-      &:last-child {
-        border: none;
-        margin-top: 12px;
-        background-color: #0095f6;
-        color: white;
-        text-align: center;
-        font-weight: 600;
-        font-size: 12px;
-      }
-    }
-  }
-`;
-
-const Separator = styled.div`
-  width: 100%;
-  margin: 20px 0 30px 0;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  div {
-    width: 100%;
-    height: 1px;
-    background-color: rgb(219, 219, 219);
-  }
-  span {
-    margin: 0px 15px;
-    font-weight: 600;
-    color: #8e8e8e;
-  }
-`;
+import routes from "../routes";
+import AuthLayout from "./components/Auth/AuthLayout";
+import BottomBox from "./components/Auth/BottomBox";
+import Button from "./components/Auth/Button";
+import FormBox from "./components/Auth/FormBox";
+import FormError from "./components/Auth/FormError";
+import Input from "./components/Auth/Input";
+import Separator from "./components/Auth/Separator";
+import PageTitle from "./components/PageTitle";
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -89,45 +23,73 @@ const FacebookLogin = styled.div`
   }
 `;
 
-const BottomBox = styled(WhiteBox)`
-  padding: 20px 0;
-  text-align: center;
-  a {
-    font-weight: 600;
-    color: #0095f6;
-  }
-`;
-
 function Login() {
-  return (
-    <Container>
-      <Wrapper>
-        <TopBox>
-          <div>
-            <FontAwesomeIcon icon={faInstagram} size="3x" />
-          </div>
-          <form>
-            <input type="text" placeholder="전화번호, 사용자이름 또는 이메일" />
-            <input type="password" placeholder="비밀번호" />
-            <input type="submit" value="로그인" placeholder="로그인" />
-          </form>
+  const { register, watch, handleSubmit, errors, formState } = useForm({
+    mode: "onChange",
+  });
+  const onSubmitValid = (data) => {
+    //console.log(data);
+  };
 
-          <Separator>
-            <div></div>
-            <span>Or</span>
-            <div></div>
-          </Separator>
-          <FacebookLogin>
-            <FontAwesomeIcon icon={faFacebookSquare} />
-            <span>페이스북으로 로그인</span>
-          </FacebookLogin>
-        </TopBox>
-        <BottomBox>
-          <span>계정이 없으신가요?</span>
-          <a href="#">가입하기</a>
-        </BottomBox>
-      </Wrapper>
-    </Container>
+  // const onSubmitInvalid = (data) => {
+  //   //console.log(data, "유효하지 않음");
+  // };
+
+  //console.log(errors);
+  //console.log(formState.isValid);
+
+  return (
+    <AuthLayout>
+      <PageTitle title="Login" />
+      <FormBox>
+        <div>
+          <FontAwesomeIcon icon={faInstagram} size="3x" />
+        </div>
+        <form onSubmit={handleSubmit(onSubmitValid)}>
+          <Input
+            ref={register({
+              required: "아이디를 입력해주세요",
+              minLength: {
+                value: 5,
+                message: "아이디는 5자 이상 작성해야 됩니다.",
+              },
+              //pattern: ""
+              //validate: (currentValue) => currentValue.includes("potato"),
+            })}
+            name="username"
+            type="text"
+            placeholder="전화번호, 사용자이름 또는 이메일"
+            hasError={Boolean(errors?.username?.message)}
+          />
+          {/* {errors?.username?.message} */}
+          <FormError message={errors?.username?.message} />
+          <Input
+            ref={register({
+              required: "비밀번호를 입력해주세요",
+            })}
+            name="password"
+            type="password"
+            placeholder="비밀번호"
+            hasError={Boolean(errors?.password?.message)}
+          />
+          {/* {errors?.password?.message} */}
+          <FormError message={errors?.password?.message} />
+          <Button type="submit" value="로그인" disabled={!formState.isValid} />
+        </form>
+
+        <Separator />
+
+        <FacebookLogin>
+          <FontAwesomeIcon icon={faFacebookSquare} />
+          <span>페이스북으로 로그인</span>
+        </FacebookLogin>
+      </FormBox>
+      <BottomBox
+        cta={"계정이 없으신가요?"}
+        link={routes.signUp}
+        linkText="가입하기"
+      />
+    </AuthLayout>
   );
 }
 
